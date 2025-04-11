@@ -1,0 +1,69 @@
+import type { PrismaClient, Recipe } from '@prisma/client';
+import type { ILogger } from './logger.js';
+import type { RecipeToCreate, Result } from '../types.js';
+
+export class RecipesDbClient {
+  constructor(
+    private prisma: PrismaClient,
+    private logger: ILogger,
+  ) {}
+
+  async createRecipe(data: RecipeToCreate): Promise<Result<Recipe>> {
+    try {
+      const recipe = await this.prisma.recipe.create({ data });
+      return { ok: true, value: recipe };
+    } catch (error) {
+      this.logger.error('createRecipe error', data, error);
+      return { ok: false, error: error as Error };
+    }
+  }
+
+  async getAllRecipes(): Promise<Result<Recipe[]>> {
+    try {
+      const recipes = await this.prisma.recipe.findMany();
+      return { ok: true, value: recipes };
+    } catch (error) {
+      this.logger.error('getAllRecipes error', error);
+      return { ok: false, error: error as Error };
+    }
+  }
+
+  async getRecipeById(id: string): Promise<Result<Recipe | null>> {
+    try {
+      const recipe = await this.prisma.recipe.findUnique({ where: { id } });
+      return { ok: true, value: recipe };
+    } catch (error) {
+      this.logger.error('getRecipeById error', id, error);
+      return { ok: false, error: error as Error };
+    }
+  }
+
+  async deleteRecipe(id: string): Promise<Result<boolean>> {
+    try {
+      const recipe = await this.prisma.recipe.findUnique({ where: { id } });
+      if (!recipe) return { ok: true, value: false };
+
+      await this.prisma.recipe.delete({ where: { id } });
+      return { ok: true, value: true };
+    } catch (error) {
+      this.logger.error('deleteRecipe error', id, error);
+      return { ok: false, error: error as Error };
+    }
+  }
+
+  async getRecipesByIngredients(ingredients: string[]): Promise<Result<Recipe[]>> {
+    try {
+      const recipes = await this.prisma.recipe.findMany({
+        where: {
+          ingredients: {
+            hasSome: ingredients,
+          },
+        },
+      });
+      return { ok: true, value: recipes };
+    } catch (error) {
+      this.logger.error('getRecipesByIngredients error', ingredients, error);
+      return { ok: false, error: error as Error };
+    }
+  }
+}
