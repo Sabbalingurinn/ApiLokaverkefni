@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx src/server.ts",
-    "build": "tsc && prisma generate && prisma migrate dev --name init",
+    "dev": "tsx watch src/index.ts",
+    "build": "prisma migrate dev --name init && tsc",
     "start": "node ./dist/src/index.js"
   },
   "keywords": [],
