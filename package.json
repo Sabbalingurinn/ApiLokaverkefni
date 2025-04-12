@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/server.ts",
-    "build": "prisma generate && prisma migrate dev --name init && tsc",
+    "build": "tsc && prisma generate && prisma migrate dev --name init",
     "start": "node ./dist/src/index.js"
   },
   "keywords": [],
