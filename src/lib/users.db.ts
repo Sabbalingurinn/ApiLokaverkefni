@@ -1,6 +1,7 @@
 import type { PrismaClient, User } from '@prisma/client';
 import type { ILogger } from './logger.js';
 import type { Result, UserToCreate, UserCreateResult } from '../types.js';
+import bcrypt from 'bcrypt';
 
 export class UsersDbClient {
   constructor(
@@ -20,11 +21,35 @@ export class UsersDbClient {
         return { ok: true, value: { created: false, reason: 'exists', user: existing } };
       }
 
-      const user = await this.prisma.user.create({ data });
+      const hashedPassword = await bcrypt.hash(data.password, 10); // hash lykilorð
+      const user = await this.prisma.user.create({
+        data: {
+          ...data,
+          password: hashedPassword,
+        },
+      });
 
       return { ok: true, value: { created: true, user } };
     } catch (error) {
       this.logger.error('createUser error', data, error);
+      return { ok: false, error: error as Error };
+    }
+  }
+
+  async verifyUser(username: string, password: string): Promise<Result<User | null>> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username },
+      });
+
+      if (!user) return { ok: true, value: null };
+
+      const passwordValid = await bcrypt.compare(password, user.password);
+      if (!passwordValid) return { ok: true, value: null };
+
+      return { ok: true, value: user };
+    } catch (error) {
+      this.logger.error('verifyUser error', username, error);
       return { ok: false, error: error as Error };
     }
   }
