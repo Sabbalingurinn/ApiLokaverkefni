@@ -56,7 +56,7 @@ export class RecipesDbClient {
       const recipes = await this.prisma.recipe.findMany({
         where: {
           ingredients: {
-            hasEvery: ingredients, // ✅ þetta tryggir að öll efni séu til staðar
+            hasEvery: ingredients,
           },
         },
       });
