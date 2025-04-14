@@ -66,4 +66,45 @@ export class RecipesDbClient {
       return { ok: false, error: error as Error };
     }
   }
+
+  async searchRecipes(filters: {
+    ingredients: string[];
+    minCalories: number;
+    maxCalories: number;
+    minProtein: number;
+    maxProtein: number;
+    minFat: number;
+    maxFat: number;
+  }): Promise<Result<Recipe[]>> {
+    try {
+      const result = await this.prisma.recipe.findMany({
+        where: {
+          calories: {
+            gte: filters.minCalories,
+            lte: filters.maxCalories,
+          },
+          protein: {
+            gte: filters.minProtein,
+            lte: filters.maxProtein,
+          },
+          fat: {
+            gte: filters.minFat,
+            lte: filters.maxFat,
+          },
+          ...(filters.ingredients.length > 0 && {
+            ingredients: {
+              hasEvery: filters.ingredients,
+            },
+          }),
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+  
+      return { ok: true, value: result };
+    } catch (error) {
+      this.logger.error('searchRecipes error', filters, error);
+      return { ok: false, error: error as Error };
+    }
+  }
+  
 }
