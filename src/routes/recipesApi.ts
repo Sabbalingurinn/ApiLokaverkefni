@@ -51,3 +51,13 @@ recipesApi.delete("/:id", async (c) => {
   if (!result.value) return c.json({ error: "Not found" }, 404);
   return c.body(null, 204);
 });
+
+recipesApi.get('/:id', async (c) => {
+  const id = c.req.param('id');
+  const result = await recipesClient.getRecipeById(id);
+
+  if (!result.ok) return c.json({ error: result.error.message }, 500);
+  if (!result.value) return c.json({ error: 'Recipe not found' }, 404);
+
+  return c.json(result.value);
+});
