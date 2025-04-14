@@ -109,4 +109,17 @@ export class RecipesDbClient {
       return { ok: false, error: error as Error };
     }
   }
+
+  async updateRecipe(id: string, data: Partial<Recipe>): Promise<Result<Recipe | null>> {
+    try {
+      const recipe = await this.prisma.recipe.update({
+        where: { id },
+        data,
+      });
+      return { ok: true, value: recipe };
+    } catch (error) {
+      this.logger.error('updateRecipe error', { id, data, error });
+      return { ok: false, error: error as Error };
+    }
+  }
 }

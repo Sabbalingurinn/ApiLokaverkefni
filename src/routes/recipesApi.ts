@@ -62,3 +62,14 @@ recipesApi.get('/:id', async (c) => {
 
   return c.json(result.value);
 });
+
+recipesApi.patch('/:id', async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+
+  const result = await recipesClient.updateRecipe(id, body);
+  if (!result.ok) return c.json({ error: result.error.message }, 500);
+  if (!result.value) return c.json({ error: 'Recipe not found' }, 404);
+
+  return c.json(result.value);
+});
