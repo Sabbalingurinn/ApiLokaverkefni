@@ -12,21 +12,6 @@ const logger = new ConsoleLogger();
 const recipesClient = new RecipesDbClient(new PrismaClient(), logger);
 
 recipesApi.get('/', async (c) => {
-  const ingredients = c.req.query('ingredients');
-
-  if (ingredients) {
-    const list = ingredients.split(',').map((i) => i.trim().toLowerCase());
-    const result = await recipesClient.getRecipesByIngredients(list);
-    if (!result.ok) return c.json({ error: result.error.message }, 500);
-    return c.json(result.value);
-  }
-
-  const result = await recipesClient.getAllRecipes();
-  if (!result.ok) return c.json({ error: result.error.message }, 500);
-  return c.json(result.value);
-});
-
-recipesApi.get('/', async (c) => {
   const ingredientsQuery = c.req.query('ingredients');
   const ingredients = ingredientsQuery
     ? ingredientsQuery.split(',').map((i) => i.trim().toLowerCase())
