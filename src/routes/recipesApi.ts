@@ -30,6 +30,7 @@ recipesApi.get("/", async (c) => {
     maxProtein: parseNum(c.req.query("maxProtein"), MAX_INT),
     minFat: parseNum(c.req.query("minFat"), 0),
     maxFat: parseNum(c.req.query("maxFat"), MAX_INT),
+    userId: c.req.query('userId') ?? undefined,
   };
 
   const result = await recipesClient.searchRecipes(filters);
